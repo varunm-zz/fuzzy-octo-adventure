@@ -43,14 +43,16 @@ if (Meteor.isClient) {
   });
 }
 
+//-------------------------------------------------------------------------
+// GOOGLE MAPS
 initialize = function() {
   console.log("initialize map")
-  // var newlocation = Locations.find().fetch()[0];
-  // console.log(newlocation);
-  // var latitude = newlocation.latitude;
-  // var longitude = newlocation.longitude;
+  var newlocation = Locations.find().fetch()[0];
+  console.log(newlocation);
+  var latitude = newlocation.latitude;
+  var longitude = newlocation.longitude;
   var mapOptions = {
-        center: new google.maps.LatLng(40.443834, -79.9444535),
+        center: new google.maps.LatLng(latitude, longitude),
         zoom: 14
       };
       var map = new google.maps.Map(document.getElementById("map-canvas"),
@@ -62,6 +64,7 @@ Meteor.startup(function (){
       google.maps.event.addDomListener(window, 'load', initialize);
 });
 
+//-------------------------------------------------------------------------
 
 // Wait for PhoneGap to load
 //
