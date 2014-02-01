@@ -51,13 +51,21 @@ initialize = function() {
   console.log(newlocation);
   var latitude = newlocation.latitude;
   var longitude = newlocation.longitude;
+  var myLatlng = new google.maps.LatLng(latitude, longitude);
   var mapOptions = {
-        center: new google.maps.LatLng(latitude, longitude),
-        zoom: 14
+        center: myLatlng,
+        zoom: 15
       };
-      var map = new google.maps.Map(document.getElementById("map-canvas"),
-          mapOptions);
-    }
+  var map = new google.maps.Map(document.getElementById("map-canvas"),
+      mapOptions);
+
+  var marker = new google.maps.Marker({
+      position: myLatlng,
+      map: map,
+      title:"Hello World!"
+  });
+}
+
 
 // Meteor.startup(function (){
  
@@ -80,8 +88,9 @@ function onDeviceReady() {
 //
 function onSuccess(position) {
     // set the longitude and latitude for a connected user
-    the_user = ConnectedUsers.find({'fbid': Meteor.user().services.facebook.id}).fetch()[0];
-    ConnectedUsers.update({'_id': the_user._id}, {'$set': {longitude: position.coords.longitude, latitude: position.coords.latitude}})
+    // the_user = ConnectedUsers.find({'fbid': Meteor.user().services.facebook.id}).fetch()[0];
+    // console.log(the_user);
+    // ConnectedUsers.update({'_id': the_user._id}, {'$set': {longitude: position.coords.longitude, latitude: position.coords.latitude}})
     Locations.insert({latitude: position.coords.latitude, longitude: position.coords.longitude});
     initialize();
 }
@@ -117,5 +126,10 @@ if (Meteor.isServer) {
 $(document).ready(function() {
   // hide new event inputs when it loads
   $('#newEventInputs').hide();
+
+  $(".showNewEventFields").click (function () {
+    $('.showNewEventFields').hide();
+    $('#newEventInputs').fadeIn();
+  }) 
 });
 
