@@ -1,7 +1,4 @@
 if (Meteor.isClient) {
-  Template.hello.greeting = function () {
-    return "Welcome to fuzzy-octo-meteor.";
-  };
 
   Meteor.autorun(function() {
     if (Meteor.user() && Meteor.user().services && Meteor.user().services.facebook) {
@@ -46,25 +43,43 @@ if (Meteor.isClient) {
   });
 }
 
+//-------------------------------------------------------------------------
+// GOOGLE MAPS
 initialize = function() {
   console.log("initialize map")
-  // var newlocation = Locations.find().fetch()[0];
-  // console.log(newlocation);
-  // var latitude = newlocation.latitude;
-  // var longitude = newlocation.longitude;
+  var newlocation = Locations.find().fetch()[0];
+  console.log(newlocation);
+  var latitude = newlocation.latitude;
+  var longitude = newlocation.longitude;
+  var myLatlng = new google.maps.LatLng(latitude, longitude);
+
+  // update a user location here
+  if(Meteor.user() && Meteor.user().services && Meteor.user().services.facebook) {
+    the_user = ConnectedUsers.find({'fbid': Meteor.user().services.facebook.id}).fetch()[0];
+    ConnectedUsers.update({'_id': the_user._id}, {'$set': {longitude: newlocation.longitude, latitude: newlocation.latitude}})  
+  }
+
   var mapOptions = {
-        center: new google.maps.LatLng(40.443834, -79.9444535),
-        zoom: 14
+        center: myLatlng,
+        zoom: 15
       };
-      var map = new google.maps.Map(document.getElementById("map-canvas"),
-          mapOptions);
-    }
+  var map = new google.maps.Map(document.getElementById("map-canvas"),
+      mapOptions);
 
-Meteor.startup(function (){
+  var marker = new google.maps.Marker({
+      position: myLatlng,
+      map: map,
+      title:"Hello World!"
+  });
+}
+
+
+// Meteor.startup(function (){
  
-      google.maps.event.addDomListener(window, 'load', initialize);
-});
+//       google.maps.event.addDomListener(window, 'load', initialize);
+// });
 
+//-------------------------------------------------------------------------
 
 // Wait for PhoneGap to load
 //
@@ -79,16 +94,12 @@ function onDeviceReady() {
 // onSuccess Geolocation
 //
 function onSuccess(position) {
-    var element = document.getElementById('geolocation');
-    var longelement = document.getElementById('longitude');
     // set the longitude and latitude for a connected user
-    the_user = ConnectedUsers.find({'fbid': Meteor.user().services.facebook.id}).fetch()[0];
-    ConnectedUsers.update({'_id': the_user._id}, {'$set': {longitude: position.coords.longitude, latitude: position.coords.latitude}})
+    // the_user = ConnectedUsers.find({'fbid': Meteor.user().services.facebook.id}).fetch()[0];
+    // console.log(the_user);
+    // ConnectedUsers.update({'_id': the_user._id}, {'$set': {longitude: position.coords.longitude, latitude: position.coords.latitude}})
     Locations.insert({latitude: position.coords.latitude, longitude: position.coords.longitude});
-    var newlocation = Locations.find().fetch()[0];
-    var latitude = newlocation.latitude;
-    var longitude = newlocation.longitude;
-    longelement.innerHTML = 'LONGITUDE : ' + longitude;
+    initialize();
 }
 // onError Callback receives a PositionError object
 //
@@ -122,5 +133,10 @@ if (Meteor.isServer) {
 $(document).ready(function() {
   // hide new event inputs when it loads
   $('#newEventInputs').hide();
+
+  $(".showNewEventFields").click (function () {
+    $('.showNewEventFields').hide();
+    $('#newEventInputs').fadeIn();
+  }) 
 });
 
