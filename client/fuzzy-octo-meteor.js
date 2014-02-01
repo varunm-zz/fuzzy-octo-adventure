@@ -1,4 +1,6 @@
 var map;
+var markers = [];
+console.log("FIRST TIME EVER")
 if (Meteor.isClient) {
 
   Meteor.autorun(function() {
@@ -65,12 +67,6 @@ initialize = function() {
       };
   map = new google.maps.Map(document.getElementById("map-canvas"),
       mapOptions);
-
-  var marker = new google.maps.Marker({
-      position: myLatlng,
-      map: map,
-      title:"Hello World!"
-  });
   draw_markers();
   draw_markers_users();
 }
@@ -139,12 +135,34 @@ draw_markers = function () {
         console.log("latitude: " +  latitude);
         console.log("longitude: " + longitude);
         var eventLatLng = new google.maps.LatLng(latitude, longitude);
-        var marker = new google.maps.Marker({
-            position: eventLatLng,
-            map: map,
-            title: e.name
+        // var currentMarker = markers[e.name];
+        var currentMarker = null
+        for (var i =0; i<markers.length; i++) {
+          if(markers[i].name == e.name) {
+            currentMarker = markers[i].marker;
+          }
+        } 
+        if (currentMarker == null) {
+          console.log("events if statement")
+          currentMarker = new google.maps.Marker({
+              position: eventLatLng,
+              map: map,
+              clickable: true,
+              title: e.name
+          });
+          // markers[e.name] = currentMarker;
+          insert(e.name, currentMarker);
+        }
+        else {
+          console.log("events else statement")
+          currentMarker.setPosition(eventLatLng);
+        }
+        google.maps.event.addListener(currentMarker, 'click', function() { 
+          map.setCenter(new google.maps.LatLng(currentMarker.position.lat(), currentMarker.position.lng())); 
+          map.setZoom(18); 
+          onItemClick(event, currentMarker); 
         });
-        console.log(marker);
+        console.log(markers);
       });
 }
 
@@ -158,14 +176,54 @@ draw_markers_users = function () {
         console.log("latitude: " +  latitude);
         console.log("longitude: " + longitude);
         var userLatLng = new google.maps.LatLng(latitude, longitude);
-        var marker = new google.maps.Marker({
-            position: userLatLng,
-            map: map,
-            title: u.facebookUser.name
+        console.log("1 : " + u.facebookUser.name);
+        var currentMarker = null
+        for (var i=0;i<markers.length;i++) {
+          console.log("AAAHHHHHHHHHHHHHHHHHHHHHH")
+          console.log(markers[i].name);
+          console.log(u.facebookUser.name);
+
+          if(markers[i].name == u.facebookUser.name) {
+            console.log("in loop if");
+            currentMarker = markers[i].marker;
+          }
+        } 
+        // var currentMarker = markers[u.facebookUser.name];
+        console.log("currentMarker : " + currentMarker);
+        if (currentMarker == null) {
+          console.log("users if statement")
+          currentMarker = new google.maps.Marker({
+              position: userLatLng,
+              map: map,
+              clickable: true,
+              title: u.facebookUser.name
+          });
+          console.log("2 : " + u.facebookUser.name);
+          insert(u.facebookUser.name, currentMarker);
+          // markers[u.facebookUser.name] = currentMarker;
+        }
+        else {
+          console.log("users else statement")
+          currentMarker.setPosition(userLatLng);
+          // insert
+        }
+        google.maps.event.addListener(currentMarker, 'click', function() {
+          onItemClick(event, currentMarker); 
         });
-        console.log(marker);
+        console.log("MARKERS: " + markers);
       });
 }
+
+// Info window trigger function 
+function onItemClick(event, pin) { 
+  // Create content  
+  var contentString = pin.title
+
+  // Replace our Info Window's content and position 
+  infowindow.setContent(contentString); 
+  infowindow.setPosition(pin.position); 
+  infowindow.open(map) 
+} 
 
 update_user_position = function () {
   console.log("WOO");
@@ -182,8 +240,11 @@ update_user_position = function () {
   });
 }
 
-function update_user_position (position) {
-  
+function insert(name, marker) {
+    markers.push({
+        name: name,
+        marker: marker
+    });        
 }
 
 ///////// dom manipulation stuff that isn't tied to meteor so I was going to put it in dom.js but jquery wasn't loaded first
@@ -198,6 +259,6 @@ $(document).ready(function() {
     }
   }); 
 
-  setInterval(update_user_position, 3000);
+  setInterval(update_user_position, 10000);
 });
 
