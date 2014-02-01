@@ -14,14 +14,22 @@ if (Meteor.isClient) {
       ecreator = Meteor.user();
       Events.insert({creator: ecreator, name: ename, description: edesc, start_time: estart, end_time: eend, longitude: elong, latitude: elat, going: [ecreator]});
       $('#newEventInputs').fadeOut();
+      $('.showNewEventFields').show();
     },
     'click .showNewEventFields' : function() {
       $('.showNewEventFields').hide();
       $('#newEventInputs').fadeIn();
     },
-    'click .resetForm' : function() {
+    'click .resetForm' : function(event) {
       $('.showNewEventFields').show();
       $('#newEventInputs').fadeOut();
+      // because the reset default functionality won't work
+      $('.event_name').val("");
+      $('.event_description').val("");
+      $('.event_start_date').val("");
+      $('.event_end_date').val("");
+      $('.event_longitude').val("");
+      $('event_latitude').val("");
     }
   });
 }
@@ -65,9 +73,8 @@ function onSuccess(position) {
     var newlocation = Locations.find().fetch()[0];
     var latitude = newlocation.latitude;
     var longitude = newlocation.longitude;
-    longelement.innerHTML = 'LONGITUDE : ' + longitude
+    longelement.innerHTML = 'LONGITUDE : ' + longitude;
 }
-
 // onError Callback receives a PositionError object
 //
 function onError(error) {
@@ -75,10 +82,32 @@ function onError(error) {
           'message: ' + error.message + '\n');
 }
 
+Template.display_event.events({
+  'click .attendEventButton' : function(event) {
+      var unique_identifier = $(event.target).attr('data');
+      loca
+      // add the logged in user to the event
+      Events.update({_id: unique_identifier}, {'$push':{'going':Meteor.user}});
+      console.log("updated");
+    }
+});
+
+Template.hello.event_list = function() {
+  // get all the events
+  return Events.find();
+}
+
+if (Meteor.isServer) {
+  Meteor.startup(function () {
+    // code to run on server at startup
+  });
+}
+
+
+
 ///////// dom manipulation stuff that isn't tied to meteor so I was going to put it in dom.js but jquery wasn't loaded first
 $(document).ready(function() {
   // hide new event inputs when it loads
   $('#newEventInputs').hide();
-
 });
 
