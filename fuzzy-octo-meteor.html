@@ -1,5 +1,4 @@
 <template name="hello">
-  <h1>Welcome!</h1>
   {{loginButtons}}
   <br />
   <div id='newEventInputs'>
@@ -32,8 +31,10 @@
 </head>
 <body>
     {{> hello}}
-    <p id="geolocation">Finding geolocation...</p>
-    <p id="longitude">GETTING LONGITUDE...</p>
-
+    <div data-role="header">
+	  <a href="#" data-role="button">Menu</a>
+	  <h1>Welcome To My Homepage</h1>
+	  <a href="#" data-role="button">Create Event</a>
+	</div>
 	<div id="map-canvas" style="width: 640px; height: 1136px"/>
 </body>

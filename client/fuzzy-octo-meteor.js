@@ -59,13 +59,6 @@ function onDeviceReady() {
 // onSuccess Geolocation
 //
 function onSuccess(position) {
-    var element = document.getElementById('geolocation');
-    var longelement = document.getElementById('longitude');
-    Locations.insert({latitude: position.coords.latitude, longitude: position.coords.longitude});
-    var newlocation = Locations.find().fetch()[0];
-    var latitude = newlocation.latitude;
-    var longitude = newlocation.longitude;
-    longelement.innerHTML = 'LONGITUDE : ' + longitude
 }
 
 // onError Callback receives a PositionError object
