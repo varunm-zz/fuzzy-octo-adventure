@@ -51,6 +51,13 @@ initialize = function() {
   console.log(newlocation);
   var latitude = newlocation.latitude;
   var longitude = newlocation.longitude;
+
+  // update a user location here
+  if(Meteor.user() && Meteor.user().services && Meteor.user().services.facebook) {
+    the_user = ConnectedUsers.find({'fbid': Meteor.user().services.facebook.id}).fetch()[0];
+    ConnectedUsers.update({'_id': the_user._id}, {'$set': {longitude: newlocation.longitude, latitude: newlocation.latitude}})  
+  }
+
   var mapOptions = {
         center: new google.maps.LatLng(latitude, longitude),
         zoom: 14
@@ -80,8 +87,6 @@ function onDeviceReady() {
 //
 function onSuccess(position) {
     // set the longitude and latitude for a connected user
-    the_user = ConnectedUsers.find({'fbid': Meteor.user().services.facebook.id}).fetch()[0];
-    ConnectedUsers.update({'_id': the_user._id}, {'$set': {longitude: position.coords.longitude, latitude: position.coords.latitude}})
     Locations.insert({latitude: position.coords.latitude, longitude: position.coords.longitude});
     initialize();
 }
