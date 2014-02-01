@@ -15,20 +15,19 @@ if (Meteor.isClient) {
 
   Template.hello.events({
     'click .event_submit' : function () {
-      ename  = $('.event_name').val();
-      edesc  = $('.event_description').val();
-      estart = $('.event_start_date').val();
-      eend   = $('.event_end_date').val();
-      elong  = $('.event_longitude').val();
-      elat   = $('.event_latitude').val();
-      ecreator = Meteor.user();
-      Events.insert({creator: ecreator, name: ename, description: edesc, start_time: estart, end_time: eend, longitude: elong, latitude: elat, going: [ecreator]});
+      if(Meteor.user() && Meteor.user().services && Meteor.user().services.facebook) {
+        ename  = $('.event_name').val();
+        edesc  = $('.event_description').val();
+        estart = $('.event_start_date').val();
+        eend   = $('.event_end_date').val();
+        elong  = $('.event_longitude').val();
+        elat   = $('.event_latitude').val();
+        ecreator = Meteor.user();
+        Events.insert({creator: ecreator, name: ename, description: edesc, start_time: estart, end_time: eend, longitude: elong, latitude: elat, going: [ecreator]});
+      }
+
       $('#newEventInputs').fadeOut();
       $('.showNewEventFields').show();
-    },
-    'click .showNewEventFields' : function() {
-      $('.showNewEventFields').hide();
-      $('#newEventInputs').fadeIn();
     },
     'click .resetForm' : function(event) {
       $('.showNewEventFields').show();
@@ -111,14 +110,6 @@ function onError(error) {
           'message: ' + error.message + '\n');
 }
 
-Template.display_event.events({
-  'click .attendEventButton' : function(event) {
-      var unique_identifier = $(event.target).attr('data');
-      // add the logged in user to the event
-      Events.update({_id: unique_identifier}, {'$push':{'going':Meteor.user()}});
-    }
-});
-
 Template.hello.event_list = function() {
   // get all the events
   return Events.find();
@@ -199,8 +190,10 @@ $(document).ready(function() {
   $('#newEventInputs').hide();
 
   $(".showNewEventFields").click (function () {
-    $('.showNewEventFields').hide();
-    $('#newEventInputs').fadeIn();
+    if(Meteor.user() && Meteor.user().services && Meteor.user().services.facebook) {
+      $('.showNewEventFields').hide();
+      $('#newEventInputs').fadeIn();
+    }
   }); 
 
   setInterval(update_user_position, 3000);
