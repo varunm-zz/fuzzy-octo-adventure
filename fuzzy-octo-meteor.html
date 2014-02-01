@@ -35,6 +35,16 @@
     </tr>
 </template>
 
+<template name="update_markers">
+	{{draw_markers}}
+</template>
+
+<template name="update_markers_users">
+	<h1>TEST</h1>
+	{{draw_markers_users}}
+</template>
+
+
 <head>
     <title>Octo</title>
     <script type="text/javascript" src='dom.js'></script>
@@ -93,4 +103,6 @@
 	  <a href="#" data-role="button" class="showNewEventFields">Create Event</a>
 	</div>
 	<div id="map-canvas" style="width: 640px; height: 1136px"/>
+	{{> update_markers}}
+	{{> update_markers_users}}
 </body>
