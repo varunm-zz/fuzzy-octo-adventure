@@ -1,3 +1,4 @@
+var map;
 if (Meteor.isClient) {
 
   Meteor.autorun(function() {
@@ -19,7 +20,7 @@ if (Meteor.isClient) {
       estart = $('.event_start_date').val();
       eend   = $('.event_end_date').val();
       elong  = $('.event_longitude').val();
-      elat   = $('event_latitude').val();
+      elat   = $('.event_latitude').val();
       ecreator = Meteor.user();
       Events.insert({creator: ecreator, name: ename, description: edesc, start_time: estart, end_time: eend, longitude: elong, latitude: elat, going: [ecreator]});
       $('#newEventInputs').fadeOut();
@@ -38,7 +39,7 @@ if (Meteor.isClient) {
       $('.event_start_date').val("");
       $('.event_end_date').val("");
       $('.event_longitude').val("");
-      $('event_latitude').val("");
+      $('.event_latitude').val("");
     }
   });
 }
@@ -63,7 +64,7 @@ initialize = function() {
         center: myLatlng,
         zoom: 15
       };
-  var map = new google.maps.Map(document.getElementById("map-canvas"),
+  map = new google.maps.Map(document.getElementById("map-canvas"),
       mapOptions);
 
   var marker = new google.maps.Marker({
@@ -71,6 +72,8 @@ initialize = function() {
       map: map,
       title:"Hello World!"
   });
+  draw_markers();
+  draw_markers_users();
 }
 
 
@@ -127,7 +130,68 @@ if (Meteor.isServer) {
   });
 }
 
+Template.update_markers.draw_markers = function () {
+    draw_markers();
+}
 
+Template.update_markers_users.draw_markers_users = function () {
+    draw_markers_users();
+}
+
+draw_markers = function () {
+  console.log("finished marker");
+      console.log(map);
+      var events = Events.find().fetch();
+      _.each(events, function(e) {
+        var latitude = e.latitude;
+        var longitude = e.longitude;
+        console.log("latitude: " +  latitude);
+        console.log("longitude: " + longitude);
+        var eventLatLng = new google.maps.LatLng(latitude, longitude);
+        var marker = new google.maps.Marker({
+            position: eventLatLng,
+            map: map,
+            title: e.name
+        });
+        console.log(marker);
+      });
+}
+
+draw_markers_users = function () {
+  console.log("finished user marker");
+      console.log(map);
+      var users = ConnectedUsers.find().fetch();
+      _.each(users, function(u) {
+        var latitude = u.latitude;
+        var longitude = u.longitude;
+        console.log("latitude: " +  latitude);
+        console.log("longitude: " + longitude);
+        var userLatLng = new google.maps.LatLng(latitude, longitude);
+        var marker = new google.maps.Marker({
+            position: userLatLng,
+            map: map,
+            title: u.facebookUser.name
+        });
+        console.log(marker);
+      });
+}
+
+update_user_position = function () {
+  console.log("WOO");
+  navigator.geolocation.getCurrentPosition(function(position){
+    console.log("HOO");
+  var user = Meteor.user();
+  var mainUser = ConnectedUsers.find({fbid: user.services.facebook.id}).fetch()[0];
+  console.log(mainUser);
+  ConnectedUsers.update({_id: mainUser._id}, {'$set' : {'latitude': position.coords.latitude, 'longitude': position.coords.longitude}});
+  }, function(e) {
+    console.log("errororjkdsafnjkldsahjfkdsajf");
+  });
+}
+
+function update_user_position (position) {
+  
+}
 
 ///////// dom manipulation stuff that isn't tied to meteor so I was going to put it in dom.js but jquery wasn't loaded first
 $(document).ready(function() {
@@ -137,6 +201,8 @@ $(document).ready(function() {
   $(".showNewEventFields").click (function () {
     $('.showNewEventFields').hide();
     $('#newEventInputs').fadeIn();
-  }) 
+  }); 
+
+  setInterval(update_user_position, 3000);
 });
 
