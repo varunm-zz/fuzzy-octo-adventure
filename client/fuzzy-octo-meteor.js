@@ -1,14 +1,27 @@
-Locations = new Meteor.Collection("locations");
 if (Meteor.isClient) {
   Template.hello.greeting = function () {
     return "Welcome to fuzzy-octo-meteor.";
   };
 
   Template.hello.events({
-    'click input' : function () {
-      // template data, if any, is available in 'this'
-      if (typeof console !== 'undefined')
-        console.log("You pressed the button");
+    'click .event_submit' : function () {
+      ename  = $('.event_name').val();
+      edesc  = $('.event_description').val();
+      estart = $('.event_start_date').val();
+      eend   = $('.event_end_date').val();
+      elong  = $('.event_longitude').val();
+      elat   = $('event_latitude').val();
+      ecreator = Meteor.user();
+      Events.insert({creator: ecreator, name: ename, description: edesc, start_time: estart, end_time: eend, longitude: elong, latitude: elat, going: [ecreator]});
+      $('#newEventInputs').fadeOut();
+    },
+    'click .showNewEventFields' : function() {
+      $('.showNewEventFields').hide();
+      $('#newEventInputs').fadeIn();
+    },
+    'click .resetForm' : function() {
+      $('.showNewEventFields').show();
+      $('#newEventInputs').fadeOut();
     }
   });
 }
@@ -62,16 +75,10 @@ function onError(error) {
           'message: ' + error.message + '\n');
 }
 
-// Template.maps.rendered = function() {
-//     var newlocation = Locations.find().fetch()[0];
-//     var latitude = newlocation.latitude;
-//     var longitude = newlocation.longitude;
-//     var mapOptions = {
-//         center: new google.maps.LatLng(latitude, longitude),
-//         zoom: 8,
-//         mapTypeId: google.maps.MapTypeId.ROADMAP
-//     };
+///////// dom manipulation stuff that isn't tied to meteor so I was going to put it in dom.js but jquery wasn't loaded first
+$(document).ready(function() {
+  // hide new event inputs when it loads
+  $('#newEventInputs').hide();
 
-//     var map = new google.maps.Map(document.getElementById("map-canvas"),
-//         mapOptions);   
-// }
+});
+
