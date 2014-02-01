@@ -6,15 +6,11 @@ if (Meteor.isClient) {
   Meteor.autorun(function() {
     if (Meteor.user() && Meteor.user().services && Meteor.user().services.facebook) {
       // create a new user when they connect to facebook
-      // if they don't exist... this is really hacky but whatever
-      var found = false;
-      ConnectedUsers.find().forEach(function(item) {
-        if(item.facebookUser.id == Meteor.user().services.facebook.id) {
-          found = true;
-        }
-      });
-      if(!found) {
-        ConnectedUsers.insert({facebookUser: Meteor.user().services.facebook, events: [], close_friends:[]});
+      // if they don't exist
+      var fbid = Meteor.user().services.facebook.id;
+      found_users = ConnectedUsers.find({'fbid': fbid});
+      if(found_users.fetch().length == 0) {
+        ConnectedUsers.insert({fbid: fbid, facebookUser: Meteor.user().services.facebook, longitude: 0, latitude: 0, events: [], close_friends:[]});
       }
     }
   });
@@ -85,6 +81,9 @@ function onDeviceReady() {
 function onSuccess(position) {
     var element = document.getElementById('geolocation');
     var longelement = document.getElementById('longitude');
+    // set the longitude and latitude for a connected user
+    the_user = ConnectedUsers.find({'fbid': Meteor.user().services.facebook.id}).fetch()[0];
+    ConnectedUsers.update({'_id': the_user._id}, {'$set': {longitude: position.coords.longitude, latitude: position.coords.latitude}})
     Locations.insert({latitude: position.coords.latitude, longitude: position.coords.longitude});
     var newlocation = Locations.find().fetch()[0];
     var latitude = newlocation.latitude;
