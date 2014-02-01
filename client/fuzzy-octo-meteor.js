@@ -59,10 +59,10 @@ initialize = function() {
           mapOptions);
     }
 
-Meteor.startup(function (){
+// Meteor.startup(function (){
  
-      google.maps.event.addDomListener(window, 'load', initialize);
-});
+//       google.maps.event.addDomListener(window, 'load', initialize);
+// });
 
 //-------------------------------------------------------------------------
 
@@ -79,6 +79,11 @@ function onDeviceReady() {
 // onSuccess Geolocation
 //
 function onSuccess(position) {
+    // set the longitude and latitude for a connected user
+    the_user = ConnectedUsers.find({'fbid': Meteor.user().services.facebook.id}).fetch()[0];
+    ConnectedUsers.update({'_id': the_user._id}, {'$set': {longitude: position.coords.longitude, latitude: position.coords.latitude}})
+    Locations.insert({latitude: position.coords.latitude, longitude: position.coords.longitude});
+    initialize();
 }
 // onError Callback receives a PositionError object
 //
