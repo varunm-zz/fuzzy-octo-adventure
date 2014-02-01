@@ -171,10 +171,12 @@ update_user_position = function () {
   console.log("WOO");
   navigator.geolocation.getCurrentPosition(function(position){
     console.log("HOO");
-  var user = Meteor.user();
-  var mainUser = ConnectedUsers.find({fbid: user.services.facebook.id}).fetch()[0];
-  console.log(mainUser);
-  ConnectedUsers.update({_id: mainUser._id}, {'$set' : {'latitude': position.coords.latitude, 'longitude': position.coords.longitude}});
+    var user = Meteor.user();
+    if(user) {
+      var mainUser = ConnectedUsers.find({fbid: user.services.facebook.id}).fetch()[0];
+      console.log(mainUser);
+      ConnectedUsers.update({_id: mainUser._id}, {'$set' : {'latitude': position.coords.latitude, 'longitude': position.coords.longitude}});
+    }
   }, function(e) {
     console.log("errororjkdsafnjkldsahjfkdsajf");
   });
