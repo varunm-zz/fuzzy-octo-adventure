@@ -29,9 +29,9 @@ if (Meteor.isClient) {
       $('#newEventInputs').fadeOut();
       $('.showNewEventFields').show();
     },
-    'click .resetForm' : function(event) {
+    'click #newEventCancel' : function(event) {
       $('.showNewEventFields').show();
-      $('#newEventInputs').fadeOut();
+      $('#newEventInputs').slideUp();
       // because the reset default functionality won't work
       $('.event_name').val("");
       $('.event_description').val("");
@@ -194,7 +194,7 @@ $(document).ready(function() {
   $(".showNewEventFields").click (function () {
     if(Meteor.user() && Meteor.user().services && Meteor.user().services.facebook) {
       $('.showNewEventFields').hide();
-      $('#newEventInputs').fadeIn();
+      $('#newEventInputs').slideDown();
     }
   }); 
 
