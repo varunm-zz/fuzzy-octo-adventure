@@ -3,6 +3,22 @@ if (Meteor.isClient) {
     return "Welcome to fuzzy-octo-meteor.";
   };
 
+  Meteor.autorun(function() {
+    if (Meteor.user() && Meteor.user().services && Meteor.user().services.facebook) {
+      // create a new user when they connect to facebook
+      // if they don't exist... this is really hacky but whatever
+      var found = false;
+      ConnectedUsers.find().forEach(function(item) {
+        if(item.facebookUser.id == Meteor.user().services.facebook.id) {
+          found = true;
+        }
+      });
+      if(!found) {
+        ConnectedUsers.insert({facebookUser: Meteor.user().services.facebook, events: [], close_friends:[]});
+      }
+    }
+  });
+
   Template.hello.events({
     'click .event_submit' : function () {
       ename  = $('.event_name').val();
