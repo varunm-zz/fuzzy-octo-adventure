@@ -85,10 +85,8 @@ function onError(error) {
 Template.display_event.events({
   'click .attendEventButton' : function(event) {
       var unique_identifier = $(event.target).attr('data');
-      loca
       // add the logged in user to the event
-      Events.update({_id: unique_identifier}, {'$push':{'going':Meteor.user}});
-      console.log("updated");
+      Events.update({_id: unique_identifier}, {'$push':{'going':Meteor.user()}});
     }
 });
 
