@@ -1,6 +1,4 @@
 <template name="hello">
-  {{loginButtons}}
-  <br />
   <div id='newEventInputs'>
       Name <input type='text' class='event_name'> <br />
       Description <textarea class='event_description'></textarea> <br />
@@ -9,20 +7,8 @@
       <!-- These should be fixed later with current location or clicking on a map or something -->
       Longitude <input type='number' class='event_longitude' step='0.00000001' /> <br />
       Latitude <input type='number' class='event_latitude' step='0.00000001' /> <br />
-      <button class='event_submit'>Create</button> <input type="Reset" value="Cancel" class='resetForm' /> <br />
+      <button class='event_submit'>Create</button> <button id="newEventCancel">Cancel</button> <br />
   </div>
-  
-  <table>
-      <thead>
-          <th>Name</th>
-          <th></th>
-      </thead>
-      <tbody>
-          {{#each event_list}}
-            {{> display_event}}
-          {{/each}}
-      </tbody>
-  </table>
 </template>
 
 <template name="display_event">
@@ -58,13 +44,17 @@
 	</script>
 </head>
 <body>
-    {{> hello}}
-    <div data-role="header">
-	  <a href="#" data-role="button">Menu</a>
-	  <h1>Lookup Events!</h1>
-	  <a href="#" data-role="button" class="showNewEventFields">Create Event</a>
-	</div>
-	<div id="map-canvas" style="width: 640px; height: 1136px"/>
-	{{> update_markers}}
-	{{> update_markers_users}}
+  {{> main}}
 </body>
+
+<template name="main">
+    <div data-role="header">
+      <a href="#" data-role="button" class="showNewEventFields">Create Event</a>
+    <a href="#" data-role="button">{{loginButtons}}</a>
+    <h1>Lookup Events!</h1>
+  </div>
+  {{> hello}}
+  <div id="map-canvas" style="width: 640px; height: 1136px"/>
+  {{> update_markers}}
+  {{> update_markers_users}}
+</template>

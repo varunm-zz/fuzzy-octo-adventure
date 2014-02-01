@@ -17,24 +17,23 @@ if (Meteor.isClient) {
 
   Template.hello.events({
     'click .event_submit' : function () {
-      ename  = $('.event_name').val();
-      edesc  = $('.event_description').val();
-      estart = $('.event_start_date').val();
-      eend   = $('.event_end_date').val();
-      elong  = $('.event_longitude').val();
-      elat   = $('.event_latitude').val();
-      ecreator = Meteor.user();
-      Events.insert({creator: ecreator, name: ename, description: edesc, start_time: estart, end_time: eend, longitude: elong, latitude: elat, going: [ecreator]});
+      if(Meteor.user() && Meteor.user().services && Meteor.user().services.facebook) {
+        ename  = $('.event_name').val();
+        edesc  = $('.event_description').val();
+        estart = $('.event_start_date').val();
+        eend   = $('.event_end_date').val();
+        elong  = $('.event_longitude').val();
+        elat   = $('.event_latitude').val();
+        ecreator = Meteor.user();
+        Events.insert({creator: ecreator, name: ename, description: edesc, start_time: estart, end_time: eend, longitude: elong, latitude: elat, going: [ecreator]});
+      }
+
       $('#newEventInputs').fadeOut();
       $('.showNewEventFields').show();
     },
-    'click .showNewEventFields' : function() {
-      $('.showNewEventFields').hide();
-      $('#newEventInputs').fadeIn();
-    },
-    'click .resetForm' : function(event) {
+    'click #newEventCancel' : function(event) {
       $('.showNewEventFields').show();
-      $('#newEventInputs').fadeOut();
+      $('#newEventInputs').slideUp();
       // because the reset default functionality won't work
       $('.event_name').val("");
       $('.event_description').val("");
@@ -106,14 +105,6 @@ function onError(error) {
     alert('code: '    + error.code    + '\n' +
           'message: ' + error.message + '\n');
 }
-
-Template.display_event.events({
-  'click .attendEventButton' : function(event) {
-      var unique_identifier = $(event.target).attr('data');
-      // add the logged in user to the event
-      Events.update({_id: unique_identifier}, {'$push':{'going':Meteor.user()}});
-    }
-});
 
 Template.hello.event_list = function() {
   // get all the events
@@ -238,10 +229,12 @@ update_user_position = function () {
   console.log("WOO");
   navigator.geolocation.getCurrentPosition(function(position){
     console.log("HOO");
-  var user = Meteor.user();
-  var mainUser = ConnectedUsers.find({fbid: user.services.facebook.id}).fetch()[0];
-  console.log(mainUser);
-  ConnectedUsers.update({_id: mainUser._id}, {'$set' : {'latitude': position.coords.latitude, 'longitude': position.coords.longitude}});
+    var user = Meteor.user();
+    if(user) {
+      var mainUser = ConnectedUsers.find({fbid: user.services.facebook.id}).fetch()[0];
+      console.log(mainUser);
+      ConnectedUsers.update({_id: mainUser._id}, {'$set' : {'latitude': position.coords.latitude, 'longitude': position.coords.longitude}});
+    }
   }, function(e) {
     console.log("errororjkdsafnjkldsahjfkdsajf");
   });
@@ -260,8 +253,10 @@ $(document).ready(function() {
   $('#newEventInputs').hide();
 
   $(".showNewEventFields").click (function () {
-    $('.showNewEventFields').hide();
-    $('#newEventInputs').fadeIn();
+    if(Meteor.user() && Meteor.user().services && Meteor.user().services.facebook) {
+      $('.showNewEventFields').hide();
+      $('#newEventInputs').slideDown();
+    }
   }); 
 
   setInterval(update_user_position, 10000);
