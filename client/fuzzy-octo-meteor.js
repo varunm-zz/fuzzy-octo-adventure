@@ -1,7 +1,4 @@
 if (Meteor.isClient) {
-  Template.hello.greeting = function () {
-    return "Welcome to fuzzy-octo-meteor.";
-  };
 
   Meteor.autorun(function() {
     if (Meteor.user() && Meteor.user().services && Meteor.user().services.facebook) {
