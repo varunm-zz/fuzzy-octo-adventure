@@ -3,6 +3,18 @@ if (Meteor.isClient) {
     return "Welcome to fuzzy-octo-meteor.";
   };
 
+  Meteor.autorun(function() {
+    if (Meteor.user() && Meteor.user().services && Meteor.user().services.facebook) {
+      // create a new user when they connect to facebook
+      // if they don't exist
+      var fbid = Meteor.user().services.facebook.id;
+      found_users = ConnectedUsers.find({'fbid': fbid});
+      if(found_users.fetch().length == 0) {
+        ConnectedUsers.insert({fbid: fbid, facebookUser: Meteor.user().services.facebook, longitude: 0, latitude: 0, events: [], close_friends:[]});
+      }
+    }
+  });
+
   Template.hello.events({
     'click .event_submit' : function () {
       ename  = $('.event_name').val();
@@ -14,14 +26,22 @@ if (Meteor.isClient) {
       ecreator = Meteor.user();
       Events.insert({creator: ecreator, name: ename, description: edesc, start_time: estart, end_time: eend, longitude: elong, latitude: elat, going: [ecreator]});
       $('#newEventInputs').fadeOut();
+      $('.showNewEventFields').show();
     },
     'click .showNewEventFields' : function() {
       $('.showNewEventFields').hide();
       $('#newEventInputs').fadeIn();
     },
-    'click .resetForm' : function() {
+    'click .resetForm' : function(event) {
       $('.showNewEventFields').show();
       $('#newEventInputs').fadeOut();
+      // because the reset default functionality won't work
+      $('.event_name').val("");
+      $('.event_description').val("");
+      $('.event_start_date').val("");
+      $('.event_end_date').val("");
+      $('.event_longitude').val("");
+      $('event_latitude').val("");
     }
   });
 }
@@ -60,7 +80,6 @@ function onDeviceReady() {
 //
 function onSuccess(position) {
 }
-
 // onError Callback receives a PositionError object
 //
 function onError(error) {
@@ -68,10 +87,30 @@ function onError(error) {
           'message: ' + error.message + '\n');
 }
 
+Template.display_event.events({
+  'click .attendEventButton' : function(event) {
+      var unique_identifier = $(event.target).attr('data');
+      // add the logged in user to the event
+      Events.update({_id: unique_identifier}, {'$push':{'going':Meteor.user()}});
+    }
+});
+
+Template.hello.event_list = function() {
+  // get all the events
+  return Events.find();
+}
+
+if (Meteor.isServer) {
+  Meteor.startup(function () {
+    // code to run on server at startup
+  });
+}
+
+
+
 ///////// dom manipulation stuff that isn't tied to meteor so I was going to put it in dom.js but jquery wasn't loaded first
 $(document).ready(function() {
   // hide new event inputs when it loads
   $('#newEventInputs').hide();
-
 });
 
